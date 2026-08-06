@@ -2,6 +2,9 @@ name: Automated Releases
 on:
   # schedule:
   #   - cron: "0 5 * * *"
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions: {}
@@ -38,4 +41,4 @@ jobs:
           name: "Release ${{ steps.fetch_commit_tag.outputs.version }}"
           generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
