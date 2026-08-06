@@ -23,10 +23,10 @@ jobs:
           python-version: "3.12"
       - name: Install Dependencies
         run: pip install requests
-      - name: Fetch commit id
+      - name: Fetch commit tag or exit
         env:
           TARGET_URL: "https://pontoon.mozilla.org/static/revision.txt"
-        run: python .github/scripts/fetch_commit_id.py
+        run: python .github/scripts/fetch_commit_tag.py
       - name: Create GitHub Release
         if: steps.fetch_commit_tag.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
