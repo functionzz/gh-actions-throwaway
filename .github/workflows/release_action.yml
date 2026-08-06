@@ -24,22 +24,36 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      - name: Set up Python 3
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
-        with:
-          python-version: "3.12"
-      - name: Install Dependencies
-        run: pip install requests
-      - name: Fetch commit tag or exit
-        id: fetch_commit_tag
-        env:
-          TARGET_URL: "https://pontoon.mozilla.org/static/revision.txt"
-        run: python .github/scripts/fetch_commit_tag.py
-      - name: Create GitHub Release
-        if: steps.fetch_commit_tag.outputs.release == 'true'
-        uses: softprops/action-gh-release@v2 # need to change to sha
-        with:
-          tag_name: "${{ steps.fetch_commit_tag.outputs.version }}"
-          name: "Release ${{ steps.fetch_commit_tag.outputs.version }}"
-          generate_release_notes: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Set up Python 3
+      #   uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      #   with:
+      #     python-version: "3.12"
+      # - name: Install Dependencies
+      #   run: pip install requests
+      # - name: Fetch commit tag or exit
+      #   id: fetch_commit_tag
+      #   env:
+      #     TARGET_URL: "https://pontoon.mozilla.org/static/revision.txt"
+      #   run: python .github/scripts/fetch_commit_tag.py
+      - name: Fetch commit sha
+        id: fetch_site
+        run: |
+          COMMIT_SHA=$(curl -s https://pontoon.mozilla.org/static/revision.txt)
+
+          if [ -z "$FETCHED_VAL" ]; then
+            echo "::error::Failed to fetch text. The website returned an empty string or threw an error."
+            exit 1
+          fi
+          
+          # If it passes the check, save it to output
+          echo "Found value: $FETCHED_VAL"
+          echo "commit_sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+
+      # - name: Create GitHub Release
+      #   if: steps.fetch_commit_tag.outputs.release == 'true'
+      #   uses: softprops/action-gh-release@v2 # need to change to sha
+      #   with:
+      #     tag_name: "${{ steps.fetch_commit_tag.outputs.version }}"
+      #     name: "Release ${{ steps.fetch_commit_tag.outputs.version }}"
+      #     generate_release_notes: true
+      #     token: ${{ secrets.GITHUB_TOKEN }}
