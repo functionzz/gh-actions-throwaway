@@ -1,0 +1,38 @@
+name: Automated Releases
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+jobs:
+  copy:
+    name: New release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Set up Python 3
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.12"
+      - name: Install Dependencies
+        run: pip install requests
+      - name: Fetch commit id
+        env:
+          TARGET_URL: "https://pontoon.mozilla.org/static/revision.txt"
+        run: python .github/scripts/fetch_commit_id.py
+      - name: Create GitHub Release
+        if: steps.fetch_commit_tag.outputs.should_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ steps.fetch_commit_tag.outputs.release_version }}"
+          name: "Release ${{ steps.fetch_commit_tag.outputs.release_version }}"
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
