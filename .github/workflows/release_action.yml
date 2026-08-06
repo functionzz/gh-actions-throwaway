@@ -7,8 +7,7 @@ on:
       - main
   workflow_dispatch:
 
-permissions:
-  content: write
+permissions: {}
 
 jobs:
   copy:
