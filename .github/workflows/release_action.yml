@@ -46,7 +46,7 @@ jobs:
           fi
           
           # If it passes the check, save it to output
-          echo "Found value: $FETCHED_VAL"
+          echo "Found value: $COMMIT_SHA"
           echo "commit_sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
 
       # - name: Create GitHub Release
