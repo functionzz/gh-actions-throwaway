@@ -7,7 +7,8 @@ on:
       - main
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  content: write
 
 jobs:
   copy:
@@ -30,15 +31,15 @@ jobs:
       - name: Install Dependencies
         run: pip install requests
       - name: Fetch commit tag or exit
+        id: fetch_commit_tag
         env:
           TARGET_URL: "https://pontoon.mozilla.org/static/revision.txt"
         run: python .github/scripts/fetch_commit_tag.py
       - name: Create GitHub Release
         if: steps.fetch_commit_tag.outputs.release == 'true'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2 # need to change to sha
         with:
           tag_name: "${{ steps.fetch_commit_tag.outputs.version }}"
           name: "Release ${{ steps.fetch_commit_tag.outputs.version }}"
           generate_release_notes: true
-        env:
           token: ${{ secrets.GITHUB_TOKEN }}

@@ -17,11 +17,13 @@ def main():
         print(f"Error fetching URL: {e}")
         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
             print("release=false", file=fh)
+        return
 
 
     if text.startswith("v20"):
         with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
             print("release=false", file=fh)
+        return
 
 
     version = "v" + date.today().strftime("%Y.%m.%d")
@@ -31,9 +33,8 @@ def main():
         print(f"version={version}", file=fh)
         print("release=true", file=fh)
 
-
-
     print(version)
+    return
 
 
 
