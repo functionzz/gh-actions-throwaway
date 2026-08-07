@@ -35,19 +35,23 @@ jobs:
       #   env:
       #     TARGET_URL: "https://pontoon.mozilla.org/static/revision.txt"
       #   run: python .github/scripts/fetch_commit_tag.py
-      - name: Fetch commit sha
-        id: fetch_site
+      - name: Fetch commit hash
+        id: hash
         run: |
-          COMMIT_SHA=$(curl -s https://pontoon.mozilla.org/static/revision.txt)
+          COMMIT_HASH=$(curl -s https://pontoon.mozilla.org/static/revision.txt)
 
-          if [ -z "$COMMIT_SHA" ]; then
-            echo "::error::Failed to fetch text. The website returned an empty string or threw an error."
+          if [ -z "$COMMIT_HASH" ]; then
+            echo "::error::Failed to fetch commit hash. The website returned an empty string or threw an error."
             exit 1
           fi
-          
-          # If it passes the check, save it to output
-          echo "Found value: $COMMIT_SHA"
-          echo "commit_sha=$COMMIT_SHA" >> $GITHUB_OUTPUT
+
+          echo "Found hash: $COMMIT_HASH"
+          echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+      - name: Get commit tag
+        run: |
+          TAG=$(git describe --tags --exact-match ${{ steps.hash.outputs.commit_hash }} 2>/dev/null || echo "No tag found")
+          echo "The tag for commit $COMMIT_HASH is: $TAG"
+
 
       # - name: Create GitHub Release
       #   if: steps.fetch_commit_tag.outputs.release == 'true'
