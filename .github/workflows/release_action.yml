@@ -50,20 +50,19 @@ jobs:
       - name: Get commit tag
         id: tag
         run: |
-          TAG=$(git describe --tags --exact-match ${{ steps.hash.outputs.commit_hash }} 2>/dev/null)
+          TAG=$(git describe --tags --exact-match ${{ steps.hash.outputs.commit_hash }} 2>/dev/null || "")
 
           if [[ "$TAG" == v20* ]]; then
             echo "Release notes already exist"
             exit 1
           fi
 
-          echo "The tag for commit $COMMIT_HASH is: $TAG"
-          echo "commit_tag=$COMMIT_TAG" >> $GITHUB_OUTPUT
+          echo "today=$(date +%Y.%m.%d)" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
         if: steps.fetch_commit_tag.outputs.release == 'true'
         uses: softprops/action-gh-release@v2 # need to change to sha
         with:
-          tag_name: "${{ steps.tag.outputs.commit_tag }}"
-          name: "Release ${{ steps.tag.outputs.version }}"
+          tag_name: "v${{ steps.tag.outputs.today }}"
+          name: "Release v${{ steps.tag.outputs.today }}"
           generate_release_notes: true
           token: ${{ secrets.GITHUB_TOKEN }}
